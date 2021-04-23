@@ -9,5 +9,5 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 });
 
 exports.callThis = functions.https.onCall((data) => {
-  return {message: "Hello World"}
+  return {processed: true, data: data}
 });

@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import firebase from "./firebase.js";
 
+async function audioToBase64(audioFile) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = (e) => resolve(e.target.result);
+    reader.readAsDataURL(audioFile);
+  });
+}
+
 function App() {
 
   const [selectedFile, setSelectedFile] = useState();
@@ -12,13 +21,14 @@ function App() {
     setIsFilePicked(true);
   };
 
+  const callThis = firebase.app().functions().httpsCallable("callThis");
+
   const handleSubmit = () => {
     const formData = new FormData();
     formData.append('File', selectedFile);
+    audioToBase64(selectedFile).then(res => callThis(res)).then(res => console.log(res))
   }
 
-  const callThis = firebase.app().functions().httpsCallable("callThis");
-  callThis({}).then((res) => console.log(res)).catch((err) => console.log(err))
   return (
     <div className="App">
       <h1>
@@ -41,6 +51,7 @@ function App() {
       ) : (
         <p>Select a file to show details</p>
       )}
+      {isFilePicked ? console.log(audioToBase64(selectedFile)) : console.log("Ingen fil")}
       <div>
         <button onClick={handleSubmit}>Submit</button>
       </div>
